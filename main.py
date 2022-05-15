@@ -24,7 +24,7 @@ def createHam(n, s, choice):
     matrix[path[0]][path[n-1]] = 1
     matrix[path[n-1]][path[0]] = 1
 
-    cnt = math.floor(n*n*s)-(5*n)
+    cnt = math.floor((n*(n-1)*s)/2)
     while cnt > 5:
         x = random.randint(0, n-1)
         y = random.randint(0, n-1)
@@ -68,9 +68,10 @@ def DFS_Euler(matrix, v):
             DFS_Euler(matrix, i)
     if v not in visited:
         visited.append(v)
-        print(v, end=" ")
+        #print(v, end=" ")
 
     #return res
+
 
 def adjAndnotInPath(matrix, v, pos, path):
     if matrix[ path[pos-1] ][v] == 0:
@@ -81,6 +82,7 @@ def adjAndnotInPath(matrix, v, pos, path):
             return False
 
     return True
+
 
 def hamCycleUtil(matrix, path, pos):
 
@@ -103,6 +105,7 @@ def hamCycleUtil(matrix, path, pos):
 
     return False
 
+
 def hamCycle(matrix):
     path = [-1] * len(matrix)
 
@@ -123,6 +126,7 @@ while x:
     print("Podaj ilosc wierchołków w grafie")
     n = int(input())
 
+    '''
     ham3 = createHam(n, 0.3, 1)
     ham7 = createHam(n, 0.7, 1)
     not_ham5 = createHam(n, 0.5, 0)
@@ -131,12 +135,47 @@ while x:
     printMatrix(ham7)
     printMatrix(not_ham5)
 
+    print("Euler: ")
     DFS_Euler(ham7, 0)
     print()
     print()
 
     hamCycle(ham3)
     hamCycle(ham7)
+    '''
+
+    w = 2
+    while w not in [0, 1]:
+        print("0 - jesli chcesz aby program wygenerowal graf")
+        print("1 - aby podac krawedzie w grafie")
+        w = int(input())
+
+    if w == 1:
+        graph = []
+        for i in range(n):
+            print("{} wiersz: ".format(i), end=" ")
+            temp = []
+            for j in range(n):
+                num = 2
+                while num not in [0,1]:
+                    num = int(input())
+                temp.append(num)
+            graph.append(temp)
+
+    if w == 0:
+        print("Podaj nasycenie (od 0 do 1)")
+        s = float(input())
+        graph = createHam(n, s, 1)
+
+    while w not in ['e', 'h']:
+        print("e - algortym szukania cyklu eulera")
+        print("h - algorytm szukania cyklu hamiltona")
+        w = input()
+
+    if w == 'e':
+        DFS_Euler(graph, 0)
+    if w == 'h':
+        hamCycle(graph)
 
     print("\n\n0 - aby zakonczyc program")
     print("1 - aby wykonac go jeszcze raz")
