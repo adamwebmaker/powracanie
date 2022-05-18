@@ -1,13 +1,13 @@
 import random
 import math
 
-
+# generowanie grafu
 def createHam(n, s, choice):
     matrix = []
     for i in range(n):
-        matrix.append([0 for j in range(n)])
+        matrix.append([0 for j in range(n)])    # generujemy tablice 2wym z zerami
 
-    #generuje sciezke
+    # generuje cykl hamiltona
     path = []
     p = n
     while p:
@@ -18,14 +18,20 @@ def createHam(n, s, choice):
     if choice:
         print(path)
 
+    # zapisuje krawędź nieskierowaną do macierzy
     for i in range(n-1):
         matrix[path[i]][path[i+1]] = 1
         matrix[path[i+1]][path[i]] = 1
+
+    # łączymy ostatni z pierwszym wierzchołkiem
     matrix[path[0]][path[n-1]] = 1
     matrix[path[n-1]][path[0]] = 1
 
+    # generuje liczbe krawędzi ze wzoru \/
+    # https://www.cs.put.poznan.pl/tzok/public/aisd-04-backtracking.html?fbclid=IwAR1DemNMvPZDVljj5btrbs9NhivpUU1Y1fSl5Z-9CUcUyrIvprmWZEnBP7c
     cnt = math.floor((n*(n-1)*s)/2)
     while cnt > 5:
+        # losujemy 3 różne niepołączone wierzchołki
         x = random.randint(0, n-1)
         y = random.randint(0, n-1)
         z = random.randint(0, n-1)
@@ -36,8 +42,9 @@ def createHam(n, s, choice):
             matrix[y][z] = 1
             matrix[z][x] = 1
             matrix[z][y] = 1
-            cnt -= 6
+            cnt -= 6    # odejmuje liczbe dodanych krawędzi
 
+    # jeśli niehamiltonowski izoluje wierzchołek (zeruje wiersz i kolumne)
     if choice == 0:
         row = random.randint(0, n-1)
         for i in range(n):
@@ -59,24 +66,24 @@ def printMatrix(matrix):
 
 
 def DFS_Euler(matrix, v):
-    visited = []
     n = len(matrix)
+    # przechodzimy po kolejnych połączonych wierzchołkach i zerujemy odwiedzoną krawędź
     for i in range(n):
         if matrix[v][i] == 1:
             matrix[v][i] = 0
             matrix[i][v] = 0
             DFS_Euler(matrix, i)
-    if v not in visited:
-        visited.append(v)
-        #print(v, end=" ")
 
-    #return res
+    # wypisujemy
+    print(v, end=" ")
 
 
 def adjAndnotInPath(matrix, v, pos, path):
+    # sprawdzamy czy istnieje krawędź między ostatnim dodanym do ścieżki a sprawdzanym
     if matrix[ path[pos-1] ][v] == 0:
         return False
 
+    # czy wierzchołek nie jest już w ścieżce
     for vertex in path:
         if vertex == v:
             return False
@@ -86,30 +93,33 @@ def adjAndnotInPath(matrix, v, pos, path):
 
 def hamCycleUtil(matrix, path, pos):
 
+    # sprawdzamy czy wszystkie wierzchołki są już w ścieżce
     if pos == len(matrix):
-        if matrix[ path[pos-1] ][ path[0] ] == 1:
+        if matrix[ path[pos-1] ][ path[0] ] == 1: # czy ostatni może połączyć się z pierwszym
             return True
         else:
             return False
 
+    # przechodzimy po wszystkich wierzchołkach pomijając 0 (już w ścieżce)
     for v in range(1,len(matrix)):
-
-        if adjAndnotInPath(matrix, v, pos, path) == True:
-
-            path[pos] = v
-
-            if hamCycleUtil(matrix, path, pos+1) == True:
+        if adjAndnotInPath(matrix, v, pos, path) == True: # jeśli jest następnikiem i nie ma go jeszcze w ścieżce
+            path[pos] = v # dopisujemy jako kolejny wierzchołek w ścieżce 
+            if hamCycleUtil(matrix, path, pos+1) == True: # i podajemy kolejny do wywołania rekurencyjnego 
                 return True
 
+            # usuwamy wierzchołek ze ścieżki jeśli nie prowadzi do rozwiązania
             path[pos] = -1
 
     return False
 
 
 def hamCycle(matrix):
+    # tworzymy ścieżkę z -1 (nieodwiedzony)
     path = [-1] * len(matrix)
 
+    # zaczynamy ścieżkę wierzchołkiem 0
     path[0] = 0
+
 
     if hamCycleUtil(matrix, path,1) == False:
         print ("Nie ma rozwiązania")
@@ -167,15 +177,24 @@ while x:
         s = float(input())
         graph = createHam(n, s, 1)
 
-    while w not in ['e', 'h']:
-        print("e - algortym szukania cyklu eulera")
-        print("h - algorytm szukania cyklu hamiltona")
-        w = input()
+    z = ''
+    while True:
+        w = ''
+        while w not in ['e', 'h']:
+            print("e - algortym szukania cyklu eulera")
+            print("h - algorytm szukania cyklu hamiltona")
+            w = input()
 
-    if w == 'e':
-        DFS_Euler(graph, 0)
-    if w == 'h':
-        hamCycle(graph)
+            if w == 'e':
+                DFS_Euler(graph, 0)
+            if w == 'h':
+                hamCycle(graph)
+            
+        print("\n\n0 - aby zakonczyc program dla tego grafu")
+        print("1 - aby wykonac go jeszcze raz")
+        z = input()
+        if z == '0':
+            break
 
     print("\n\n0 - aby zakonczyc program")
     print("1 - aby wykonac go jeszcze raz")
